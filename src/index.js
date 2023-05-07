@@ -23,6 +23,14 @@ class MyGame extends Phaser.Scene {
 
   create() {
     this.add.image(400, 300, "sky");
+
+    const platforms = this.physics.add.staticGroup();
+
+    platforms.create(400, 568, "ground").setScale(2).refreshBody();
+
+    platforms.create(600, 400, "ground");
+    platforms.create(50, 250, "ground");
+    platforms.create(750, 220, "ground");
   }
 }
 
@@ -31,6 +39,13 @@ const config = {
   parent: "Mark Game",
   width: 1080,
   height: 720,
+  physics: {
+    default: "arcade",
+    arcade: {
+      gravity: { y: 300 },
+      debug: false,
+    },
+  },
   scene: MyGame,
 };
 
