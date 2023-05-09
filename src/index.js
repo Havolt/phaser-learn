@@ -10,6 +10,10 @@ class MyGame extends Phaser.Scene {
     super();
   }
 
+  collectStar(player, star) {
+    star.disableBody(true, true);
+  }
+
   preload() {
     this.load.image("sky", skyImg);
     this.load.image("ground", groundImg);
@@ -35,10 +39,10 @@ class MyGame extends Phaser.Scene {
     platforms.create(750, 220, "ground");
 
     // Player Creation
-    const player = this.physics.add.sprite(100, 450, "dude");
+    this.player = this.physics.add.sprite(100, 450, "dude");
 
-    player.setBounce(0.2);
-    player.setCollideWorldBounds(true);
+    this.player.setBounce(0.2);
+    this.player.setCollideWorldBounds(true);
 
     this.anims.create({
       key: "left",
@@ -61,7 +65,52 @@ class MyGame extends Phaser.Scene {
     });
 
     // Add physics collision
-    this.physics.add.collider(player, platforms);
+    this.physics.add.collider(this.player, platforms);
+
+    // Add controls
+    this.cursors = this.input.keyboard.createCursorKeys();
+
+    // Add stars
+    this.stars = this.physics.add.group({
+      key: "star",
+      repeat: 11,
+      setXY: { x: 12, y: 0, stepX: 70 },
+    });
+
+    this.stars.children.iterate(function (child) {
+      child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+    });
+
+    // Add collision between stars and ground
+    this.physics.add.collider(this.stars, platforms);
+    // Check when player overlaps star
+    this.physics.add.overlap(
+      this.player,
+      this.stars,
+      this.collectStar,
+      null,
+      this
+    );
+  }
+
+  update() {
+    if (this.cursors.left.isDown) {
+      this.player.setVelocityX(-160);
+
+      this.player.anims.play("left", true);
+    } else if (this.cursors.right.isDown) {
+      this.player.setVelocityX(160);
+
+      this.player.anims.play("right", true);
+    } else {
+      this.player.setVelocityX(0);
+
+      this.player.anims.play("turn");
+    }
+
+    if (this.cursors.up.isDown && this.player.body.touching.down) {
+      this.player.setVelocityY(-330);
+    }
   }
 }
 
